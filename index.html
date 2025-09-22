@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Advanced Change Detection Dashboard</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <script>
+        // Custom colors are still useful for consistency
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        // Light blue accent color
+                        primary: '#4a90e2',
+                        // Green accent color
+                        secondary: '#50c476',
+                        // Orange/Yellow accent color
+                        tertiary: '#f5a623'
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* Updated scrollbar for the light theme */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #e2e8f0; /* Light gray track */
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #a0aec0; /* Darker gray handle */
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #718096;
+        }
+        canvas {
+            max-width: 100% !important;
+            height: auto !important;
+        }
+    </style>
+</head>
+<body class="bg-slate-100 text-gray-800 font-sans min-h-screen flex flex-col">
+
+    <header class="bg-white p-4 shadow-md sticky top-0 z-10">
+        <div class="container mx-auto flex justify-between items-center">
+            <h1 class="text-3xl font-extrabold text-gray-900">Historical Change Detection</h1>
+            <nav>
+                <a href="#" class="text-gray-600 hover:text-primary mx-3 text-lg font-medium">Dashboard</a>
+                <a href="#" class="text-gray-600 hover:text-primary mx-3 text-lg font-medium">Analytics</a>
+                <a href="#" class="text-gray-600 hover:text-primary mx-3 text-lg font-medium">Reports</a>
+            </nav>
+        </div>
+    </header>
+
+    <main class="flex-grow container mx-auto p-6 grid grid-cols-1 lg:grid-cols-3 gap-6">
+        
+        <div class="lg:col-span-2 bg-white rounded-lg shadow-xl p-6 border border-gray-200">
+            <h2 class="text-2xl font-bold mb-4 text-primary">Land Use & Stability Evolution</h2>
+            <p class="text-gray-500 mb-6">Compare satellite imagery year-wise to observe changes in land use and stability over time.</p>
+
+            <div id="image-container" class="relative w-full h-[550px] mx-auto rounded-lg overflow-hidden shadow-2xl border-4 border-gray-200 bg-gray-100 mb-6">
+                <img id="img1" src="2015.jpg" alt="Satellite Image 2015" class="image-layer absolute top-0 left-0 w-full h-full object-cover opacity-100 transition-opacity duration-500">
+                <img id="img2" src="2020.jpg" alt="Satellite Image 2020" class="image-layer absolute top-0 left-0 w-full h-full object-cover opacity-0 transition-opacity duration-500">
+                <img id="img3" src="2025.jpg" alt="Satellite Image 2025" class="image-layer absolute top-0 left-0 w-full h-full object-cover opacity-0 transition-opacity duration-500">
+            </div>
+
+            <div class="max-w-xl mx-auto mt-4">
+                <input id="yearSlider" type="range" min="1" max="3" value="1" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-primary">
+                <div class="flex justify-between text-md font-semibold text-gray-500 mt-2 px-1" id="yearLabels">
+                    <span data-year="2015">2015</span>
+                    <span data-year="2020">2020</span>
+                    <span data-year="2025">2025</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="lg:col-span-1 space-y-6">
+            
+            <div class="bg-white rounded-lg shadow-xl p-6 border border-gray-200">
+                <h3 class="text-xl font-bold mb-3 text-secondary" id="statsTitle">Area Statistics Overview (2015)</h3>
+                <div class="grid grid-cols-2 gap-4 text-gray-600">
+                    <div>
+                        <p class="text-sm">Total Urban Area:</p>
+                        <p id="urbanArea" class="text-2xl font-bold text-gray-900">10,000 <span class="text-sm font-medium text-gray-500">sq km</span></p>
+                    </div>
+                    <div>
+                        <p class="text-sm">Green Cover:</p>
+                        <p id="greenCover" class="text-2xl font-bold text-gray-900">9,000 <span class="text-sm font-medium text-gray-500">sq km</span></p>
+                    </div>
+                    <div>
+                        <p class="text-sm">Water Bodies:</p>
+                        <p id="waterBodies" class="text-2xl font-bold text-gray-900">1,800 <span class="text-sm font-medium text-gray-500">sq km</span></p>
+                    </div>
+                    <div>
+                        <p class="text-sm">Population Density:</p>
+                        <p id="populationDensity" class="text-2xl font-bold text-gray-900">350 <span class="text-sm font-medium text-gray-500">per sq km</span></p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-lg shadow-xl p-6 border border-gray-200">
+                <h3 class="text-xl font-bold mb-3 text-tertiary">Land Use Distribution</h3>
+                <canvas id="landUseChart"></canvas>
+            </div>
+
+            <div class="bg-white rounded-lg shadow-xl p-6 border border-gray-200">
+                <h3 class="text-xl font-bold mb-3 text-primary">Development Trends</h3>
+                <canvas id="developmentTrendChart"></canvas>
+            </div>
+
+        </div>
+    </main>
+
+    <footer class="bg-white p-4 mt-6 text-center text-gray-500 text-sm border-t border-gray-200">
+        <p>&copy; 2025 Historical Change Detection. All rights reserved.</p>
+    </footer>
+
+    <script src="script.js"></script>
+
+</body>
+</html>
