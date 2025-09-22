@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Ganga River Flow Analytics - Uttarakhand</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <!-- Fonts and icons -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/feather-icons"></script>
+  <!-- Leaflet and its CSS for the base map -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
+  <!-- Leaflet Polyline Decorator for the directional arrows -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet-polyline-decorator@1.6.0/dist/leaflet.polyline-decorator.min.css"/>
+  <!-- AOS animations -->
+  <link rel="stylesheet" href="https://unpkg.com/aos@2.3.4/dist/aos.css"/>
+  <!-- Custom styles -->
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header class="app-header" data-aos="fade-down">
+    <div class="brand">
+      <span class="brand-logo">🌊</span>
+      <div class="brand-text">
+        <h1>Uttarakhand River Flow</h1>
+        <p>Ganga Basin — Live Map, Insights, and Trends</p>
+      </div>
+    </div>
+    <div class="header-actions">
+      <button id="themeToggle" class="btn btn-ghost" title="Toggle theme">
+        <i data-feather="sun"></i>
+      </button>
+      <a class="btn btn-primary" href="#" id="exportReport">Export Report</a>
+    </div>
+  </header>
+
+  <main class="layout">
+    <aside class="sidebar" data-aos="fade-right">
+      <div class="panel">
+        <h3>Filters</h3>
+        <label class="input">
+          <span>Date range</span>
+          <input type="date" id="startDate" />
+          <input type="date" id="endDate" />
+        </label>
+        <label class="input">
+          <span>Station</span>
+          <select id="stationSelect">
+            <option value="all" selected>All Stations</option>
+            <option value="devprayag">Devprayag</option>
+            <option value="rishikesh">Rishikesh</option>
+            <option value="haridwar">Haridwar</option>
+          </select>
+        </label>
+        <label class="input">
+          <span>Layer</span>
+          <select id="layerSelect">
+            <option value="rivers" selected>Rivers</option>
+            <option value="tributaries">Tributaries</option>
+            <option value="heat">Flow Intensity (Heat)</option>
+          </select>
+        </label>
+        <button class="btn btn-secondary" id="applyFilters">Apply</button>
+      </div>
+
+      <div class="panel" data-aos="fade-up">
+        <h3>About this dashboard</h3>
+        <p>This dashboard visualizes river flow conditions and trends across the Ganga basin in Uttarakhand, combining geospatial layers with time-series analytics.</p>
+        <div class="photo-card">
+          <img alt="Ganga in Uttarakhand" src="https://images.unsplash.com/photo-1523419443879-b59ef9b65a2e?q=80&w=1200&auto=format&fit=crop"/>
+          <span class="caption">Bhagirathi near the Himalayas</span>
+        </div>
+      </div>
+    </aside>
+
+    <section class="content">
+      <section class="kpis" data-aos="fade-up">
+        <div class="kpi-card">
+          <div class="kpi-label">Avg Discharge</div>
+          <div class="kpi-value" id="kpiDischarge">—</div>
+          <div class="kpi-trend up"><i data-feather="trending-up"></i><span id="kpiDischargeDelta">+0.0%</span></div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">Rainfall (24h)</div>
+          <div class="kpi-value" id="kpiRain">—</div>
+          <div class="kpi-trend neutral"><i data-feather="activity"></i><span id="kpiRainDelta">0 mm</span></div>
+        </div>
+      </section>
+
+      <section class="map-and-legend" data-aos="fade-up" data-aos-delay="50">
+        <div id="map"></div>
+        <div class="legend">
+          <h4>Legend</h4>
+          <div class="legend-row"><span class="badge main"></span>Main River</div>
+          <div class="legend-row"><span class="badge trib"></span>Tributary</div>
+          <div class="legend-row"><span class="badge heat"></span>Flow Intensity</div>
+        </div>
+      </section>
+
+      <section class="charts" data-aos="fade-up" data-aos-delay="100">
+        <div class="chart-card">
+          <div class="chart-head">
+            <h3>Discharge Trend</h3>
+            <span class="sub">Last 30 days</span>
+          </div>
+          <canvas id="chartDischarge"></canvas>
+        </div>
+        <div class="chart-card">
+          <div class="chart-head">
+            <h3>Rainfall vs Discharge</h3>
+            <span class="sub">Daily comparison</span>
+          </div>
+          <canvas id="chartRainVsFlow"></canvas>
+        </div>
+        <div class="chart-card">
+          <div class="chart-head">
+            <h3>Flood Risk Index</h3>
+            <span class="sub">Composite indicator</span>
+          </div>
+          <canvas id="chartGauge"></canvas>
+        </div>
+      </section>
+    </section>
+  </main>
+
+  <footer class="app-footer">
+    <span>© 2025 River Analytics Lab • Data sources: OpenStreetMap, IMD (demo)</span>
+  </footer>
+
+  <!-- Libraries -->
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+  <script src="https://unpkg.com/leaflet-polyline-decorator@1.6.0/dist/leaflet.polyline-decorator.min.js"></script>
+  <script src="https://unpkg.com/aos@2.3.4/dist/aos.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+
+  <!-- App scripts -->
+  <script src="ganga.js"></script>
+  <script src="dashboard.js"></script>
+  <script>
+    AOS.init({ duration: 700, once: true });
+    feather.replace();
+  </script>
+</body>
+</html>
+
