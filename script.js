@@ -100,93 +100,6 @@ function updateDashboard(sliderValue) {
     updateYearLabels(currentYear);
 }
 
-// --- Chart Initializations ---
-// Land Use Chart (Pie Chart)
-// FIX: Changed getContext('d') to getContext('2d')
-const landUseCtx = document.getElementById('landUseChart').getContext('2d');
-landUseChartInstance = new Chart(landUseCtx, {
-    type: 'pie',
-    data: {
-        labels: yearData['2015'].landUse.labels,
-        datasets: [{
-            data: yearData['2015'].landUse.data,
-            backgroundColor: [
-                'rgb(74, 144, 226)',
-                'rgb(80, 196, 118)',
-                'rgb(245, 166, 35)',
-                'rgb(149, 165, 166)'
-            ],
-            hoverOffset: 4
-        }]
-    },
-    options: {
-        responsive: true,
-        plugins: {
-            legend: {
-                position: 'bottom',
-                labels: {
-                    color: '#4a5568'
-                }
-            },
-            title: {
-                display: false
-            }
-        },
-        elements: {
-            arc: {
-                borderWidth: 0
-            }
-        }
-    }
-});
-
-// Development Trend Chart (Line Chart)
-const developmentCtx = document.getElementById('developmentTrendChart').getContext('2d');
-developmentTrendChartInstance = new Chart(developmentCtx, {
-    type: 'line',
-    data: {
-        labels: ['2015'],
-        datasets: [{
-            label: 'Urbanization Index',
-            data: [yearData['2015'].developmentTrend[0]],
-            fill: true,
-            borderColor: 'rgb(74, 144, 226)',
-            backgroundColor: 'rgba(74, 144, 226, 0.2)',
-            tension: 0.3
-        }]
-    },
-    options: {
-        responsive: true,
-        plugins: {
-            legend: {
-                display: false
-            },
-            title: {
-                display: false
-            }
-        },
-        scales: {
-            x: {
-                grid: {
-                    color: '#e2e8f0'
-                },
-                ticks: {
-                    color: '#64748b'
-                }
-            },
-            y: {
-                beginAtZero: true,
-                grid: {
-                    color: '#e2e8f0'
-                },
-                ticks: {
-                    color: '#64748b'
-                }
-            }
-        }
-    }
-});
-
 // --- Event Listeners ---
 slider.addEventListener('input', (event) => {
     updateDashboard(event.target.value);
@@ -194,5 +107,95 @@ slider.addEventListener('input', (event) => {
 
 // --- Initial Load ---
 document.addEventListener('DOMContentLoaded', () => {
+    // Initialize Charts
+    initializeCharts();
     updateDashboard(slider.value);
 });
+
+// --- Chart Initializations ---
+function initializeCharts() {
+    // Land Use Chart (Pie Chart)
+    const landUseCtx = document.getElementById('landUseChart').getContext('2d');
+    landUseChartInstance = new Chart(landUseCtx, {
+        type: 'pie',
+        data: {
+            labels: yearData['2015'].landUse.labels,
+            datasets: [{
+                data: yearData['2015'].landUse.data,
+                backgroundColor: [
+                    'rgb(74, 144, 226)',
+                    'rgb(80, 196, 118)',
+                    'rgb(245, 166, 35)',
+                    'rgb(149, 165, 166)'
+                ],
+                hoverOffset: 4
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                    labels: {
+                        color: '#4a5568'
+                    }
+                },
+                title: {
+                    display: false
+                }
+            },
+            elements: {
+                arc: {
+                    borderWidth: 0
+                }
+            }
+        }
+    });
+
+    // Development Trend Chart (Line Chart)
+    const developmentCtx = document.getElementById('developmentTrendChart').getContext('2d');
+    developmentTrendChartInstance = new Chart(developmentCtx, {
+        type: 'line',
+        data: {
+            labels: ['2015'],
+            datasets: [{
+                label: 'Urbanization Index',
+                data: [yearData['2015'].developmentTrend[0]],
+                fill: true,
+                borderColor: 'rgb(74, 144, 226)',
+                backgroundColor: 'rgba(74, 144, 226, 0.2)',
+                tension: 0.3
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    display: false
+                },
+                title: {
+                    display: false
+                }
+            },
+            scales: {
+                x: {
+                    grid: {
+                        color: '#e2e8f0'
+                    },
+                    ticks: {
+                        color: '#64748b'
+                    }
+                },
+                y: {
+                    beginAtZero: true,
+                    grid: {
+                        color: '#e2e8f0'
+                    },
+                    ticks: {
+                        color: '#64748b'
+                    }
+                }
+            }
+        }
+    });
+}

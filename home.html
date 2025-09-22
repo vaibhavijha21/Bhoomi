@@ -1,0 +1,618 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GeoSafe India - National Proactive Hazard Intelligence</title>
+
+    <!-- Inter Font -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            50: '#eff6ff',
+                            100: '#dbeafe',
+                            600: '#2563eb',
+                            700: '#1d4ed8'
+                        },
+                        success: '#16a34a',
+                        warning: '#f59e0b',
+                        danger: '#ef4444'
+                    },
+                    boxShadow: {
+                        card: '0 4px 24px rgba(0,0,0,0.08)'
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <!-- Vanilla Tilt -->
+    <script src="https://cdn.jsdelivr.net/npm/vanilla-tilt@1.8.1/dist/vanilla-tilt.min.js"></script>
+
+    <!-- GSAP for smooth number/card animations -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+
+    <!-- Chart.js for dynamic charts -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <!-- Chart.js DataLabels plugin for value labels on charts -->
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0"></script>
+
+    <style>
+        body { font-family: 'Inter', system-ui, -apple-system, Segoe UI, Roboto, Arial, 'Noto Sans', 'Apple Color Emoji', 'Segoe UI Emoji'; }
+        /* Smooth collapse/expand for sidebar */
+        .transition-width { transition: width 220ms ease, left 220ms ease; }
+        /* Sidebar label visibility controlled by a class */
+        .nav-label { display: none; }
+        #sidebar.show-labels .nav-label { display: inline; }
+        /* Content shift when sidebar expands */
+        .content-wrapper { padding-left: 5rem; transition: padding-left 220ms ease; }
+        body.sidebar-expanded .content-wrapper { padding-left: 18rem; }
+    </style>
+</head>
+<body class="bg-white text-slate-800">
+    <div class="min-h-screen flex">
+        <!-- Sidebar -->
+        <aside id="sidebar" class="transition-width fixed z-30 top-0 left-0 h-full w-15 bg-white border-r border-slate-200 shadow-sm overflow-hidden">
+            <div class="h-16 px-6 md:px-4 flex items-center justify-between border-b border-slate-200">
+                <div class="flex items-center gap-3">
+                    <div class="h-9 w-9 rounded-lg bg-primary-600 text-white flex items-center justify-center shadow-sm">
+                        <i data-lucide="shield"></i>
+                    </div>
+                    <span class="font-semibold text-lg nav-label">Bhoomi</span>
+                </div>
+                <button id="sidebarCloseBtn" class="p-2 rounded-md hover:bg-slate-100 nav-label" aria-label="Close sidebar">
+                    <i data-lucide="x"></i>
+                </button>
+            </div>
+
+            <nav class="px-3 pt-4">
+                <ul class="space-y-1">
+                    <li>
+                        <a href="home.html" class="flex items-center gap-3 px-3 py-2 rounded-md hover:bg-slate-100 text-primary-700 font-medium">
+                            <i data-lucide="layout-dashboard" class="shrink-0"></i>
+                            <span class="nav-label">Dashboard</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="panel1.html" class="flex items-center gap-3 px-3 py-2 rounded-md hover:bg-slate-100">
+                            <i data-lucide="map-pin" class="shrink-0"></i>
+                            <span class="nav-label">River Analysis</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="index.html" class="flex items-center gap-3 px-3 py-2 rounded-md hover:bg-slate-100">
+                            <i data-lucide="shield-check" class="shrink-0"></i>
+                            <span class="nav-label">Historical Change</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="2.html" class="flex items-center gap-3 px-3 py-2 rounded-md hover:bg-slate-100">
+                            <i data-lucide="package-check" class="shrink-0"></i>
+                            <span class="nav-label">Future Terrain </span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#" class="flex items-center gap-3 px-3 py-2 rounded-md hover:bg-slate-100">
+                            <i data-lucide="settings" class="shrink-0"></i>
+                            <span class="nav-label">Settings</span>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        </aside>
+
+        <!-- Main Content Wrapper -->
+        <div class="flex-1 w-full content-wrapper">
+            <!-- Header -->
+            <header class="sticky top-0 z-20 bg-white/90 backdrop-blur border-b border-slate-200">
+                <div class="h-16 px-4 sm:px-6 flex items-center justify-between">
+                    <div class="flex items-center gap-3">
+                        <button id="sidebarOpenBtn" class="p-2 rounded-md hover:bg-slate-100 lg:hidden" aria-label="Open sidebar">
+                            <i data-lucide="menu"></i>
+                        </button>
+                        <h1 class="text-xl sm:text-2xl font-semibold">National Proactive Hazard Intelligence</h1>
+                    </div>
+                    <div class="flex items-center gap-4">
+                        <div class="hidden md:block">
+                            <div class="relative">
+                                <span class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">
+                                    <i data-lucide="search" class="h-5 w-5"></i>
+                                </span>
+                                <input type="text" placeholder="Search for districts, regions..." class="pl-10 pr-4 py-2 w-72 rounded-md border border-slate-300 focus:outline-none focus:ring-2 focus:ring-primary-600">
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-3">
+                            <img src="https://ui-avatars.com/api/?name=Admin+Planner&background=2563eb&color=fff" alt="User Avatar" class="h-9 w-9 rounded-full">
+                            <div class="hidden sm:block">
+                                <div class="text-sm font-medium">Admin Planner</div>
+                                <div class="text-xs text-slate-500">Urban Development Ministry</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Content -->
+            <main class="px-4 sm:px-6 py-6">
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <!-- Left Column: Map (spans 2) -->
+                    <section class="lg:col-span-2">
+                        <div class="rounded-xl border border-slate-200 bg-white shadow-card overflow-hidden">
+                            <div class="p-5 sm:p-6 border-b border-slate-200 flex items-center justify-between">
+                                <div>
+                                    <h2 class="text-lg font-semibold">Geospatial Vulnerability Map</h2>
+                                    <p class="text-sm text-slate-500">Data sourced from geological & construction surveys</p>
+                                </div>
+                                <!-- Legend -->
+                                <div class="hidden md:flex items-center gap-3 text-sm">
+                                    <span class="inline-flex items-center gap-2"><span class="h-2.5 w-2.5 rounded-full bg-success"></span> Low Vulnerability</span>
+                                    <span class="inline-flex items-center gap-2"><span class="h-2.5 w-2.5 rounded-full bg-warning"></span> Moderate Vulnerability</span>
+                                    <span class="inline-flex items-center gap-2"><span class="h-2.5 w-2.5 rounded-full bg-danger"></span> High Vulnerability</span>
+                                </div>
+                            </div>
+
+                            <!-- Interactive Map -->
+                            <div class="relative h-[460px] sm:h-[520px] bg-slate-50 overflow-hidden">
+                                <!-- Map Image -->
+                                <img id="mapImage" src="./Map.jpg" alt="Interactive Vulnerability Map" class="absolute inset-0 h-full w-full object-cover transition-transform duration-300 ease-out" style="transform-origin: center center;">
+                                
+                                <!-- Map Overlay Controls -->
+                                <div class="absolute top-4 left-4 bg-white/90 backdrop-blur rounded-lg p-3 shadow-sm">
+                                    <div class="flex flex-col gap-2 text-xs">
+                                        <button id="zoomInBtn" class="flex items-center gap-2 px-3 py-1.5 rounded bg-primary-600 text-white hover:bg-primary-700 transition-colors">
+                                            <i data-lucide="zoom-in" class="h-3 w-3"></i>
+                                            Zoom In
+                                        </button>
+                                        <button id="zoomOutBtn" class="flex items-center gap-2 px-3 py-1.5 rounded bg-white border border-slate-300 hover:bg-slate-50 transition-colors">
+                                            <i data-lucide="zoom-out" class="h-3 w-3"></i>
+                                            Zoom Out
+                                        </button>
+                                        <button id="resetZoomBtn" class="flex items-center gap-2 px-3 py-1.5 rounded bg-white border border-slate-300 hover:bg-slate-50 transition-colors">
+                                            <i data-lucide="maximize" class="h-3 w-3"></i>
+                                            Reset
+                                        </button>
+                                        <button class="flex items-center gap-2 px-3 py-1.5 rounded bg-white border border-slate-300 hover:bg-slate-50 transition-colors">
+                                            <i data-lucide="layers" class="h-3 w-3"></i>
+                                            Layers
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <!-- Map Legend for Mobile -->
+                                <div class="absolute bottom-4 left-4 md:hidden bg-white/90 backdrop-blur rounded-lg p-3 shadow-sm">
+                                    <div class="flex items-center gap-3 text-xs">
+                                        <span class="inline-flex items-center gap-1"><span class="h-2 w-2 rounded-full bg-success"></span> Low</span>
+                                        <span class="inline-flex items-center gap-1"><span class="h-2 w-2 rounded-full bg-warning"></span> Moderate</span>
+                                        <span class="inline-flex items-center gap-1"><span class="h-2 w-2 rounded-full bg-danger"></span> High</span>
+                                    </div>
+                                </div>
+
+                                <!-- Interactive Hotspots (example markers) -->
+                                <div class="absolute top-1/3 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
+                                    <div class="relative group cursor-pointer">
+                                        <div class="h-4 w-4 bg-danger rounded-full border-2 border-white shadow-lg animate-pulse"></div>
+                                        <div class="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 hidden group-hover:block">
+                                            <div class="bg-black/80 text-white text-xs rounded px-2 py-1 whitespace-nowrap">
+                                                High Risk Zone - Seismic Activity
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="absolute top-2/3 left-1/4 transform -translate-x-1/2 -translate-y-1/2">
+                                    <div class="relative group cursor-pointer">
+                                        <div class="h-4 w-4 bg-warning rounded-full border-2 border-white shadow-lg"></div>
+                                        <div class="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 hidden group-hover:block">
+                                            <div class="bg-black/80 text-white text-xs rounded px-2 py-1 whitespace-nowrap">
+                                                Moderate Risk - Soil Liquefaction
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="absolute top-1/2 right-1/3 transform translate-x-1/2 -translate-y-1/2">
+                                    <div class="relative group cursor-pointer">
+                                        <div class="h-4 w-4 bg-success rounded-full border-2 border-white shadow-lg"></div>
+                                        <div class="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 hidden group-hover:block">
+                                            <div class="bg-black/80 text-white text-xs rounded px-2 py-1 whitespace-nowrap">
+                                                Low Risk - Stable Ground
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Below map: Infrastructure and Intervention side-by-side -->
+                        <div class="mt-6 grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <!-- Infrastructure at Risk (Bar) -->
+                            <div class="data-card rounded-lg border border-slate-200 bg-white shadow-card p-4">
+                                <div class="flex items-center justify-between mb-2">
+                                    <h3 class="text-sm font-semibold">Infrastructure at Risk</h3>
+                                    <span class="text-xs text-slate-500">by type</span>
+                                </div>
+                                <canvas id="barChart" height="140"></canvas>
+                            </div>
+
+                            <!-- High-Priority Intervention -->
+                            <div class="data-card rounded-lg border border-slate-200 bg-white shadow-card p-4">
+                                <h3 class="text-sm font-semibold mb-2">High-Priority Intervention</h3>
+                                <div class="overflow-auto max-h-40">
+                                    <table class="w-full text-xs">
+                                        <thead class="text-slate-500 text-xs">
+                                            <tr>
+                                                <th class="text-left py-1">Location</th>
+                                                <th class="text-left py-1">Risk</th>
+                                                <th class="text-left py-1">Urgency</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="interventionTable"></tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- Right Column: Cards -->
+                    <section class="space-y-6">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <!-- Regional Vulnerability Score (animated) -->
+                            <div class="data-card rounded-lg border border-slate-200 bg-white shadow-card p-4">
+                            <div class="flex items-start justify-between flex-wrap gap-2">
+                                <h3 class="text-sm font-semibold">Regional Vulnerability Score</h3>
+                                <span class="inline-flex items-center gap-1.5 text-danger text-xs font-medium bg-red-50 px-2 py-0.5 rounded-full whitespace-nowrap">
+                                    <i data-lucide="alert-triangle" class="h-3 w-3"></i>
+                                    High Risk
+                                </span>
+                            </div>
+                            <div class="mt-3 flex items-end gap-4">
+                                <div class="text-2xl font-bold text-slate-900"><span id="kpiScore">0.0</span> <span class="text-lg text-slate-400">/ 10</span></div>
+                                <div class="text-right">
+                                    <div class="text-xs text-slate-600">Mitigation Readiness</div>
+                                    <div id="readinessVal" class="text-base font-semibold">--%</div>
+                                </div>
+                            </div>
+                            <div class="mt-2 text-xs text-slate-500">Selected region: <span id="selectedRegion">--</span></div>
+                            <div class="mt-3">
+                                <div class="w-full h-2 rounded-full bg-slate-100">
+                                    <div id="kpiBar" class="h-2 rounded-full bg-danger" style="width:0%"></div>
+                                </div>
+                            </div>
+                            </div>
+
+                            <!-- Population in High-Risk Zones -->
+                            <div class="data-card rounded-lg border border-slate-200 bg-white shadow-card p-4">
+                            <h3 class="text-sm font-semibold mb-2">Population in High-Risk Zones</h3>
+                            <div class="mt-1 text-2xl font-bold text-slate-900" id="popHighRisk">--</div>
+                            <div class="mt-2 text-[11px] text-slate-500">Human-centric metric — updated on load</div>
+                            </div>
+                        </div>
+
+                        <!-- Risk Factor Distribution (Donut) -->
+                        <div class="data-card rounded-lg border border-slate-200 bg-white shadow-card p-4">
+                            <div class="flex items-center justify-between mb-2">
+                                <h3 class="text-sm font-semibold">Risk Factor Distribution</h3>
+                                <span class="text-xs text-slate-500 shrink-0 ml-2">Live</span>
+                            </div>
+                            <div class="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs mb-2">
+                                <span class="inline-flex items-center gap-1"><span class="h-2 w-4 rounded-sm" style="background:#ef4444"></span> Seismic</span>
+                                <span class="inline-flex items-center gap-1"><span class="h-2 w-4 rounded-sm" style="background:#f59e0b"></span> Slopes</span>
+                                <span class="inline-flex items-center gap-1"><span class="h-2 w-4 rounded-sm" style="background:#10b981"></span> Poor Construction</span>
+                            </div>
+                            <!-- Summary values -->
+                            <div id="donutSummary" class="mb-2 grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs"></div>
+                            <canvas id="donutChart" height="140"></canvas>
+                        </div>
+
+                        
+
+                        
+                    </section>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <script>
+        // Initialize Lucide icons
+        lucide.createIcons();
+
+        // Map zoom functionality
+        let currentZoom = 1;
+        const minZoom = 1;
+        const maxZoom = 3;
+        const zoomStep = 0.3;
+        
+        const mapImage = document.getElementById('mapImage');
+        const zoomInBtn = document.getElementById('zoomInBtn');
+        const zoomOutBtn = document.getElementById('zoomOutBtn');
+        const resetZoomBtn = document.getElementById('resetZoomBtn');
+        
+        function updateMapZoom() {
+            mapImage.style.transform = `scale(${currentZoom})`;
+            
+            // Update button states
+            zoomInBtn.disabled = currentZoom >= maxZoom;
+            zoomOutBtn.disabled = currentZoom <= minZoom;
+            
+            // Visual feedback for disabled buttons
+            if (currentZoom >= maxZoom) {
+                zoomInBtn.classList.add('opacity-50', 'cursor-not-allowed');
+                zoomInBtn.classList.remove('hover:bg-primary-700');
+            } else {
+                zoomInBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+                zoomInBtn.classList.add('hover:bg-primary-700');
+            }
+            
+            if (currentZoom <= minZoom) {
+                zoomOutBtn.classList.add('opacity-50', 'cursor-not-allowed');
+                zoomOutBtn.classList.remove('hover:bg-slate-50');
+            } else {
+                zoomOutBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+                zoomOutBtn.classList.add('hover:bg-slate-50');
+            }
+        }
+        
+        // Zoom in function
+        zoomInBtn.addEventListener('click', function() {
+            if (currentZoom < maxZoom) {
+                currentZoom = Math.min(maxZoom, currentZoom + zoomStep);
+                updateMapZoom();
+            }
+        });
+        
+        // Zoom out function
+        zoomOutBtn.addEventListener('click', function() {
+            if (currentZoom > minZoom) {
+                currentZoom = Math.max(minZoom, currentZoom - zoomStep);
+                updateMapZoom();
+            }
+        });
+        
+        // Reset zoom function
+        resetZoomBtn.addEventListener('click', function() {
+            currentZoom = 1;
+            updateMapZoom();
+        });
+        
+        // Mouse wheel zoom (optional enhancement)
+        mapImage.addEventListener('wheel', function(e) {
+            e.preventDefault();
+            
+            if (e.deltaY < 0 && currentZoom < maxZoom) {
+                // Scroll up - zoom in
+                currentZoom = Math.min(maxZoom, currentZoom + zoomStep * 0.5);
+            } else if (e.deltaY > 0 && currentZoom > minZoom) {
+                // Scroll down - zoom out
+                currentZoom = Math.max(minZoom, currentZoom - zoomStep * 0.5);
+            }
+            
+            updateMapZoom();
+        });
+        
+        // Initialize zoom state
+        updateMapZoom();
+
+        // Initialize tilt on data cards
+        VanillaTilt.init(document.querySelectorAll('.data-card'), {
+            max: 6,
+            speed: 350,
+            glare: true,
+            'max-glare': 0.15,
+            scale: 1.01
+        });
+
+        // Sidebar hover expand (icons-only by default; expand on hover)
+        const sidebar = document.getElementById('sidebar');
+        const openBtn = document.getElementById('sidebarOpenBtn');
+        const closeBtn = document.getElementById('sidebarCloseBtn');
+        function openSidebar() { sidebar.style.left = '0'; }
+        function closeSidebar() {
+            // On mobile: slide away. On desktop: collapse to icons-only
+            if (window.innerWidth < 1024) {
+                sidebar.style.left = '-18rem';
+            } else {
+                document.body.classList.remove('sidebar-expanded');
+                sidebar.classList.remove('show-labels');
+                sidebar.classList.remove('w-72');
+                sidebar.classList.add('w-20');
+                // Allow re-expand on next hover after manual close
+                sidebarExpandedOnce = false;
+            }
+        }
+        function updateSidebarForViewport() {
+            if (window.innerWidth < 1024) {
+                sidebar.style.left = '-18rem';
+                sidebar.style.position = 'fixed';
+            } else {
+                sidebar.style.left = '0';
+                sidebar.style.position = 'fixed';
+            }
+        }
+        openBtn && openBtn.addEventListener('click', openSidebar);
+        closeBtn && closeBtn.addEventListener('click', closeSidebar);
+        window.addEventListener('resize', updateSidebarForViewport);
+        updateSidebarForViewport();
+
+        // Desktop: expand once per refresh on first hover, then keep expanded
+        let sidebarExpandedOnce = false;
+        function expandSidebarOnce() {
+            if (sidebarExpandedOnce) return;
+            sidebarExpandedOnce = true;
+            document.body.classList.add('sidebar-expanded');
+            sidebar.classList.add('show-labels');
+            // Lock width to expanded size
+            sidebar.classList.remove('w-20');
+            sidebar.classList.add('w-72');
+        }
+        sidebar.addEventListener('mouseenter', expandSidebarOnce);
+
+        // ---------------- Dynamic KPIs & Charts ----------------
+        const dashboardData = {
+            overallScore: 8.3,
+            mitigationReadiness: 52,
+            selectedRegion: 'Joshimath, Uttarakhand',
+            populationHighRisk: 25000,
+            riskFactorDistribution: [
+                { name: 'Seismic', value: 45 },
+                { name: 'Slopes', value: 35 },
+                { name: 'Poor Construction', value: 15 }
+            ],
+            vulnerabilityTrend: [7.2, 7.4, 7.6, 7.9, 8.3],
+            criticalInfrastructure: { Hospitals: 3, Schools: 15, Stations: 0, Towers: 5, Roads_km: 150 },
+            interventionList: [
+                { loc: 'Marwari Ward, Joshimath', risk: 'Land Subsidence Zone', urgency: 'Critical' },
+                { loc: 'Auli Road Corridor', risk: 'Unstable Slopes', urgency: 'High' },
+                { loc: 'Main Joshimath Hospital', risk: 'Seismic & Cracks', urgency: 'Medium' }
+            ]
+        };
+
+        // Animate KPI
+        function animateKpi() {
+            const scoreEl = document.getElementById('kpiScore');
+            const barEl = document.getElementById('kpiBar');
+            const readyEl = document.getElementById('readinessVal');
+            const regionEl = document.getElementById('selectedRegion');
+            if (!scoreEl || !barEl) return;
+            gsap.fromTo(scoreEl, { innerText: 0 }, { innerText: dashboardData.overallScore, duration: 1.2, ease: 'power2.out', snap: { innerText: 0.1 } });
+            gsap.to(barEl, { width: (dashboardData.mitigationReadiness) + '%', duration: 1.2, ease: 'power2.out' });
+            if (readyEl) animateCount(readyEl, 0, dashboardData.mitigationReadiness, 1.1, v => Math.round(v) + '%');
+            if (regionEl) regionEl.textContent = dashboardData.selectedRegion;
+        }
+
+        // Populate population and interventions
+        function nFormatter(num){ return num>=1000000 ? (num/1000000).toFixed(1)+'M' : num>=1000 ? (num/1000).toFixed(1)+'k' : Math.round(num); }
+        function animateCount(el, from, to, duration, formatter){
+            const obj = { val: from };
+            gsap.to(obj, { val: to, duration, ease: 'power2.out', onUpdate: ()=>{
+                el.textContent = formatter ? formatter(obj.val) : Math.round(obj.val);
+            } });
+        }
+        function populateAux() {
+            const popEl = document.getElementById('popHighRisk');
+            if (popEl) animateCount(popEl, 0, dashboardData.populationHighRisk, 1.2, v => nFormatter(v));
+            const tbody = document.getElementById('interventionTable');
+            if (tbody) {
+                tbody.innerHTML = '';
+                dashboardData.interventionList.forEach(item => {
+                    const tr = document.createElement('tr');
+                    tr.className = 'border-t border-slate-200';
+                    tr.innerHTML = `<td class="py-2">${item.loc}</td><td class="py-2">${item.risk}</td><td class="py-2 ${item.urgency==='Critical'?'text-danger':item.urgency==='High'?'text-warning':'text-slate-700'}">${item.urgency}</td>`;
+                    tbody.appendChild(tr);
+                });
+            }
+
+            // Donut summary values with count-up
+            const summary = document.getElementById('donutSummary');
+            if (summary) {
+                summary.innerHTML = '';
+                const total = dashboardData.riskFactorDistribution.reduce((a,b)=>a + b.value, 0);
+                const colors = ['#ef4444', '#f59e0b', '#3b82f6', '#10b981'];
+                dashboardData.riskFactorDistribution.forEach((r, idx) => {
+                    const div = document.createElement('div');
+                    div.className = 'flex items-center gap-2';
+                    div.innerHTML = `<span class="inline-block h-2.5 w-5 rounded-sm" style="background:${colors[idx]}"></span><span class="text-slate-600">${r.name}</span><span class="ml-auto font-semibold" id="sum_${idx}">0</span>`;
+                    summary.appendChild(div);
+                    const target = document.getElementById(`sum_${idx}`);
+                    animateCount(target, 0, r.value, 1, v => Math.round(v));
+                });
+                const totalDiv = document.createElement('div');
+                totalDiv.className = 'col-span-2 sm:col-span-4 flex items-center justify-between border-top border-slate-200 pt-2 mt-1';
+                totalDiv.innerHTML = `<span class="text-slate-700">Total</span><span class="font-semibold" id="sum_total">0</span>`;
+                summary.appendChild(totalDiv);
+                const totalEl = document.getElementById('sum_total');
+                animateCount(totalEl, 0, total, 1, v => Math.round(v));
+            }
+        }
+
+        // Charts
+        let donutChart, barChart;
+        function initCharts() {
+            // register DataLabels plugin if available
+            if (window.Chart && window.ChartDataLabels) { Chart.register(ChartDataLabels); }
+            const donutCtx = document.getElementById('donutChart');
+            if (donutCtx) {
+                donutChart = new Chart(donutCtx.getContext('2d'), {
+                    type: 'doughnut',
+                    data: {
+                        labels: dashboardData.riskFactorDistribution.map(r => r.name),
+                        datasets: [{
+                            data: dashboardData.riskFactorDistribution.map(() => 0),
+                            backgroundColor: ['#ef4444', '#f59e0b', '#3b82f6', '#10b981'],
+                            borderWidth: 0
+                        }]
+                    },
+                    options: {
+                        layout: { padding: { top: 0, right: 6, bottom: 0, left: 6 } },
+                        plugins: { 
+                            legend: { display: false },
+                            datalabels: {
+                                color: '#ffffff',
+                                formatter: (value, ctx) => {
+                                    const label = ctx.chart.data.labels[ctx.dataIndex];
+                                    // Show label + value for sizeable slices, else value only
+                                    return value >= 10 ? `${label} ${value}` : `${value}`;
+                                },
+                                font: { weight: '700', size: 10 },
+                                backgroundColor: 'rgba(0,0,0,0.35)',
+                                borderRadius: 6,
+                                padding: 3,
+                                anchor: 'center',
+                                align: 'center',
+                                offset: 0,
+                                clamp: true
+                            }
+                        },
+                        cutout: '65%'
+                    }
+                });
+            }
+
+            // line chart removed per request
+
+            const barCtx = document.getElementById('barChart');
+            if (barCtx) {
+                const labels = Object.keys(dashboardData.criticalInfrastructure);
+                const values = Object.values(dashboardData.criticalInfrastructure);
+                barChart = new Chart(barCtx.getContext('2d'), {
+                    type: 'bar',
+                    data: { labels, datasets: [{ label: 'Units', data: values.map(() => 0), backgroundColor: '#3b82f6' }] },
+                    options: { plugins: { legend: { display: false } }, animation: { duration: 1000 }, scales: { y: { beginAtZero: true } } }
+                });
+            }
+
+            // After a short delay, update charts to real values to animate from 0
+            setTimeout(() => {
+                if (donutChart) {
+                    donutChart.data.datasets[0].data = dashboardData.riskFactorDistribution.map(r => r.value);
+                    donutChart.update();
+                }
+                // no line chart to update
+                if (barChart) {
+                    barChart.data.datasets[0].data = Object.values(dashboardData.criticalInfrastructure);
+                    barChart.update();
+                }
+            }, 150);
+        }
+
+        // Kickoff: animate once on load, then static
+        animateKpi();
+        initCharts();
+        populateAux();
+    </script>
+</body>
+</html>
+
+
+

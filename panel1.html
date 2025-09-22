@@ -9,6 +9,22 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <script src="https://unpkg.com/feather-icons"></script>
+  <!-- Tailwind CSS and Lucide for shared sidebar UI -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: { 50: '#eff6ff', 100: '#dbeafe', 600: '#2563eb', 700: '#1d4ed8' },
+            success: '#16a34a', warning: '#f59e0b', danger: '#ef4444'
+          },
+          boxShadow: { card: '0 4px 24px rgba(0,0,0,0.08)' }
+        }
+      }
+    }
+  </script>
+  <script src="https://unpkg.com/lucide@latest"></script>
   <!-- Leaflet and its CSS for the base map -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
   <!-- Leaflet Polyline Decorator for the directional arrows -->
@@ -17,8 +33,67 @@
   <link rel="stylesheet" href="https://unpkg.com/aos@2.3.4/dist/aos.css"/>
   <!-- Custom styles -->
   <link rel="stylesheet" href="styles.css" />
+  <style>
+    /* Shared sidebar helpers */
+    .transition-width { transition: width 220ms ease, left 220ms ease; }
+    .nav-label { display: none; }
+    #sidebar.show-labels .nav-label { display: inline; }
+    .content-wrapper { padding-left: 5rem; transition: padding-left 220ms ease; }
+    body.sidebar-expanded .content-wrapper { padding-left: 18rem; }
+  </style>
 </head>
-<body>
+<body class="bg-white text-slate-800">
+  <div class="min-h-screen flex">
+    <!-- Sidebar -->
+    <aside id="sidebar" class="transition-width fixed z-30 top-0 left-0 h-full w-15 bg-white border-r border-slate-200 shadow-sm overflow-hidden">
+      <div class="h-16 px-6 md:px-4 flex items-center justify-between border-b border-slate-200">
+        <div class="flex items-center gap-3">
+          <div class="h-9 w-9 rounded-lg bg-primary-600 text-white flex items-center justify-center shadow-sm">
+            <i data-lucide="shield"></i>
+          </div>
+          <span class="font-semibold text-lg nav-label">Bhoomi</span>
+        </div>
+        <button id="sidebarCloseBtn" class="p-2 rounded-md hover:bg-slate-100 nav-label" aria-label="Close sidebar">
+          <i data-lucide="x"></i>
+        </button>
+      </div>
+      <nav class="px-3 pt-4">
+        <ul class="space-y-1">
+          <li>
+            <a href="home.html" class="flex items-center gap-3 px-3 py-2 rounded-md hover:bg-slate-100">
+              <i data-lucide="layout-dashboard" class="shrink-0"></i>
+              <span class="nav-label">Dashboard</span>
+            </a>
+          </li>
+          <li>
+            <a href="panel1.html" class="flex items-center gap-3 px-3 py-2 rounded-md hover:bg-slate-100 text-primary-700 font-medium">
+              <i data-lucide="map-pin" class="shrink-0"></i>
+              <span class="nav-label">River Analysis</span>
+            </a>
+          </li>
+          <li>
+            <a href="index.html" class="flex items-center gap-3 px-3 py-2 rounded-md hover:bg-slate-100">
+              <i data-lucide="shield-check" class="shrink-0"></i>
+              <span class="nav-label">Historical Change</span>
+            </a>
+          </li>
+          <li>
+            <a href="2.html" class="flex items-center gap-3 px-3 py-2 rounded-md hover:bg-slate-100">
+              <i data-lucide="package-check" class="shrink-0"></i>
+              <span class="nav-label">Future Terrain</span>
+            </a>
+          </li>
+          <li>
+            <a href="#" class="flex items-center gap-3 px-3 py-2 rounded-md hover:bg-slate-100">
+              <i data-lucide="settings" class="shrink-0"></i>
+              <span class="nav-label">Settings</span>
+            </a>
+          </li>
+        </ul>
+      </nav>
+    </aside>
+    <!-- Main Content Wrapper start -->
+    <div class="flex-1 w-full content-wrapper">
   <header class="app-header" data-aos="fade-down">
     <div class="brand">
       <span class="brand-logo">🌊</span>
@@ -140,7 +215,52 @@
   <script>
     AOS.init({ duration: 700, once: true });
     feather.replace();
+    // Initialize Lucide icons (for sidebar)
+    lucide.createIcons();
+
+    // Sidebar behavior (match index.html)
+    const sidebar = document.getElementById('sidebar');
+    const openBtn = document.getElementById('sidebarOpenBtn');
+    const closeBtn = document.getElementById('sidebarCloseBtn');
+    function openSidebar() { sidebar.style.left = '0'; }
+    function closeSidebar() {
+      if (window.innerWidth < 1024) {
+        sidebar.style.left = '-18rem';
+      } else {
+        document.body.classList.remove('sidebar-expanded');
+        sidebar.classList.remove('show-labels');
+        sidebar.classList.remove('w-72');
+        sidebar.classList.add('w-20');
+        sidebarExpandedOnce = false;
+      }
+    }
+    function updateSidebarForViewport() {
+      if (window.innerWidth < 1024) {
+        sidebar.style.left = '-18rem';
+        sidebar.style.position = 'fixed';
+      } else {
+        sidebar.style.left = '0';
+        sidebar.style.position = 'fixed';
+      }
+    }
+    openBtn && openBtn.addEventListener('click', openSidebar);
+    closeBtn && closeBtn.addEventListener('click', closeSidebar);
+    window.addEventListener('resize', updateSidebarForViewport);
+    updateSidebarForViewport();
+
+    let sidebarExpandedOnce = false;
+    function expandSidebarOnce() {
+      if (sidebarExpandedOnce) return;
+      sidebarExpandedOnce = true;
+      document.body.classList.add('sidebar-expanded');
+      sidebar.classList.add('show-labels');
+      sidebar.classList.remove('w-20');
+      sidebar.classList.add('w-72');
+    }
+    sidebar.addEventListener('mouseenter', expandSidebarOnce);
   </script>
+    </div><!-- /content-wrapper -->
+  </div><!-- /min-h-screen flex -->
 </body>
 </html>
 

@@ -3,28 +3,50 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Advanced Change Detection Dashboard</title>
+    <title>GeoSafe India - National Proactive Hazard Intelligence</title>
     
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Inter Font -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
     <script>
-        // Custom colors are still useful for consistency
         tailwind.config = {
             theme: {
                 extend: {
                     colors: {
-                        // Light blue accent color
-                        primary: '#4a90e2',
-                        // Green accent color
-                        secondary: '#50c476',
-                        // Orange/Yellow accent color
-                        tertiary: '#f5a623'
+                        primary: {
+                            50: '#eff6ff',
+                            100: '#dbeafe',
+                            600: '#2563eb',
+                            700: '#1d4ed8',
+                            DEFAULT: '#2563eb'
+                        },
+                        secondary: {
+                            DEFAULT: '#16a34a'
+                        },
+                        tertiary: {
+                            DEFAULT: '#f59e0b'
+                        },
+                        success: '#16a34a',
+                        warning: '#f59e0b',
+                        danger: '#ef4444'
+                    },
+                    boxShadow: {
+                        card: '0 4px 24px rgba(0,0,0,0.08)'
                     }
                 }
             }
         }
     </script>
+
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <!-- Chart.js for dynamic charts -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 
     <style>
         /* Updated scrollbar for the light theme */
@@ -45,20 +67,89 @@
             max-width: 100% !important;
             height: auto !important;
         }
-    </style>
-</head>
-<body class="bg-slate-100 text-gray-800 font-sans min-h-screen flex flex-col">
+</style>
+<style>
+    .transition-width { transition: width 220ms ease, left 220ms ease; }
+    .nav-label { display: none; }
+    #sidebar.show-labels .nav-label { display: inline; }
+    .content-wrapper { padding-left: 5rem; transition: padding-left 220ms ease; }
+    body.sidebar-expanded .content-wrapper { padding-left: 18rem; }
+  </style>
+    </head>
+<body class="bg-white text-slate-800">
+    <div class="min-h-screen flex">
+        <!-- Sidebar -->
+        <aside id="sidebar" class="transition-width fixed z-30 top-0 left-0 h-full w-15 bg-white border-r border-slate-200 shadow-sm overflow-hidden">
+            <div class="h-16 px-6 md:px-4 flex items-center justify-between border-b border-slate-200">
+                <div class="flex items-center gap-3">
+                    <div class="h-9 w-9 rounded-lg bg-primary-600 text-white flex items-center justify-center shadow-sm">
+                        <i data-lucide="shield"></i>
+                    </div>
+                    <span class="font-semibold text-lg nav-label">Bhoomi</span>
+                </div>
+                <button id="sidebarCloseBtn" class="p-2 rounded-md hover:bg-slate-100 nav-label" aria-label="Close sidebar">
+                    <i data-lucide="x"></i>
+                </button>
+            </div>
 
-    <header class="bg-white p-4 shadow-md sticky top-0 z-10">
-        <div class="container mx-auto flex justify-between items-center">
-            <h1 class="text-3xl font-extrabold text-gray-900">Historical Change Detection</h1>
-            <nav>
-                <a href="#" class="text-gray-600 hover:text-primary mx-3 text-lg font-medium">Dashboard</a>
-                <a href="#" class="text-gray-600 hover:text-primary mx-3 text-lg font-medium">Analytics</a>
-                <a href="#" class="text-gray-600 hover:text-primary mx-3 text-lg font-medium">Reports</a>
+            <nav class="px-3 pt-4">
+                <ul class="space-y-1">
+                    <li>
+                        <a href="home.html" class="flex items-center gap-3 px-3 py-2 rounded-md hover:bg-slate-100">
+                            <i data-lucide="layout-dashboard" class="shrink-0"></i>
+                            <span class="nav-label">Dashboard</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="panel1.html" class="flex items-center gap-3 px-3 py-2 rounded-md hover:bg-slate-100">
+                            <i data-lucide="map-pin" class="shrink-0"></i>
+                            <span class="nav-label">River Analysis</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="index.html" class="flex items-center gap-3 px-3 py-2 rounded-md hover:bg-slate-100">
+                            <i data-lucide="shield-check" class="shrink-0"></i>
+                            <span class="nav-label">Historical Change</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="2.html" class="flex items-center gap-3 px-3 py-2 rounded-md hover:bg-slate-100">
+                            <i data-lucide="package-check" class="shrink-0"></i>
+                            <span class="nav-label">Future Terrain</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#" class="flex items-center gap-3 px-3 py-2 rounded-md hover:bg-slate-100">
+                            <i data-lucide="settings" class="shrink-0"></i>
+                            <span class="nav-label">Settings</span>
+                        </a>
+                    </li>
+                </ul>
             </nav>
-        </div>
-    </header>
+        </aside>
+
+        <!-- Main Content Wrapper -->
+        <div class="flex-1 w-full content-wrapper">
+            <!-- Header -->
+            <header class="sticky top-0 z-20 bg-white/90 backdrop-blur border-b border-slate-200">
+                <div class="h-16 px-4 sm:px-6 flex items-center justify-between">
+                    <div class="flex items-center gap-3">
+                        <button id="sidebarOpenBtn" class="p-2 rounded-md hover:bg-slate-100 lg:hidden" aria-label="Open sidebar">
+                            <i data-lucide="menu"></i>
+                        </button>
+                        <h1 class="text-xl sm:text-2xl font-semibold">Historical Change Detection</h1>
+                    </div>
+                    <div class="flex items-center gap-4">
+                        <div class="flex items-center gap-3">
+                            <img src="https://ui-avatars.com/api/?name=Admin+Planner&background=2563eb&color=fff" alt="User Avatar" class="h-9 w-9 rounded-full">
+                            <div class="hidden sm:block">
+                                <div class="text-sm font-medium">Admin Planner</div>
+                                <div class="text-xs text-slate-500">Urban Development Ministry</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </header>
 
     <main class="flex-grow container mx-auto p-6 grid grid-cols-1 lg:grid-cols-3 gap-6">
         
@@ -124,6 +215,50 @@
     </footer>
 
     <script src="script.js"></script>
-
+    <script>
+        const sidebar = document.getElementById('sidebar');
+        const openBtn = document.getElementById('sidebarOpenBtn');
+        const closeBtn = document.getElementById('sidebarCloseBtn');
+        function openSidebar() { sidebar.style.left = '0'; }
+        function closeSidebar() {
+            if (window.innerWidth < 1024) {
+                sidebar.style.left = '-18rem';
+            } else {
+                document.body.classList.remove('sidebar-expanded');
+                sidebar.classList.remove('show-labels');
+                sidebar.classList.remove('w-72');
+                sidebar.classList.add('w-20');
+                sidebarExpandedOnce = false;
+            }
+        }
+        function updateSidebarForViewport() {
+            if (window.innerWidth < 1024) {
+                sidebar.style.left = '-18rem';
+                sidebar.style.position = 'fixed';
+            } else {
+                sidebar.style.left = '0';
+                sidebar.style.position = 'fixed';
+            }
+        }
+        openBtn && openBtn.addEventListener('click', openSidebar);
+        closeBtn && closeBtn.addEventListener('click', closeSidebar);
+        window.addEventListener('resize', updateSidebarForViewport);
+        updateSidebarForViewport();
+        let sidebarExpandedOnce = false;
+        function expandSidebarOnce() {
+            if (sidebarExpandedOnce) return;
+            sidebarExpandedOnce = true;
+            document.body.classList.add('sidebar-expanded');
+            sidebar.classList.add('show-labels');
+            sidebar.classList.remove('w-20');
+            sidebar.classList.add('w-72');
+        }
+        sidebar.addEventListener('mouseenter', expandSidebarOnce);
+        
+        // Initialize Lucide icons
+        lucide.createIcons();
+    </script>
+        </div>
+    </div>
 </body>
 </html>
